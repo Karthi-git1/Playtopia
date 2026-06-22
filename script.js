@@ -48,100 +48,100 @@ navLinks.querySelectorAll('a').forEach(a => {
 
   const totalFrames = 270;
   const frameDir = 'ezgif-4a31bce2e2017d34-png-split/';
-  const framePadding = 3; // e.g., "frame-001.png"
-  let currentFrameIndex = 1;
-  let frameCache = {}; // Cache loaded frames
+  const images = new Array(totalFrames + 1);
+  let loadedCount = 0;
+  let isReady = false;
 
-  function getFramePath(frameNum) {
-    const padded = String(frameNum).padStart(framePadding, '0');
-    return `${frameDir}ezgif-frame-${padded}.webp`;
+  // Show loading bar
+  const loader = document.createElement('div');
+  loader.style.cssText = `
+    position:fixed; top:0; left:0; 
+    height:2px; width:0%; 
+    background:#00d4ff; 
+    z-index:9999; 
+    transition:width 0.2s ease;
+  `;
+  document.body.appendChild(loader);
+
+  function getFramePath(n) {
+    return `${frameDir}ezgif-frame-${
+      String(n).padStart(3,'0')}.webp`;
   }
 
-  function updateFrame(frameNum) {
-    if(frameNum === currentFrameIndex) return; // No change
-    
-    currentFrameIndex = frameNum;
-    const src = getFramePath(frameNum);
-    frameImg.src = src;
-  }
-
-  function updateSceneVisibility(progress) {
-    const scenes = [
-      { el: document.getElementById('heroScene1'), start: 0.00, end: 0.25 },
-      { el: document.getElementById('heroScene2'), start: 0.25, end: 0.50 },
-      { el: document.getElementById('heroScene3'), start: 0.50, end: 0.75 },
-      { el: document.getElementById('heroScene4'), start: 0.75, end: 1.00 }
-    ];
-
-    scenes.forEach(scene => {
-      if(!scene.el) return;
+  // Preload ALL frames first
+  for(let i = 1; i <= totalFrames; i++){
+    images[i] = new Image();
+    images[i].onload = () => {
+      loadedCount++;
+      // Update loading bar
+      loader.style.width = 
+        (loadedCount / totalFrames * 100) + '%';
       
-      if(progress >= scene.start && progress <= scene.end) {
-        scene.el.classList.add('active');
-      } else {
-        scene.el.classList.remove('active');
+      // All loaded — ready to animate
+      if(loadedCount === totalFrames){
+        isReady = true;
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
       }
-    });
+    };
+    images[i].src = getFramePath(i);
   }
 
-  function handleScroll() {
+  function handleScroll(){
+    if(!isReady) return; // Wait until all loaded
+    
     const scrolled = window.scrollY;
-    const heroSection = document.querySelector('.hero');
-    if(!heroSection) return;
+    const hero = document.querySelector('.hero');
+    if(!hero) return;
 
-    const heroTop = heroSection.offsetTop;
-    const heroHeight = heroSection.offsetHeight;
-    const scrollProgress = (scrolled - heroTop) / (heroHeight - window.innerHeight);
+    const progress = Math.max(0, Math.min(1,
+      (scrolled - hero.offsetTop) / 
+      (hero.offsetHeight - window.innerHeight)
+    ));
 
-    // Clamp progress between 0 and 1
-    const clampedProgress = Math.max(0, Math.min(1, scrollProgress));
+    const frameNum = Math.round(
+      1 + (progress * (totalFrames - 1))
+    );
 
-    // Map scroll progress to frame number (1 to 270)
-    const frameNum = Math.round(1 + (clampedProgress * (totalFrames - 1)));
-    
-    // Update frame image
-    updateFrame(frameNum);
-    
-    // Update scene text visibility
-    updateSceneVisibility(clampedProgress);
+    // Direct image swap — no lag
+    frameImg.src = images[frameNum].src;
 
-    // Hide scroll indicator when scrolling starts
-    const indicator = document.getElementById('scrollIndicator');
-    if(indicator) {
-      indicator.style.opacity = clampedProgress > 0.05 ? '0' : '1';
+    // Scene visibility
+    updateSceneVisibility(progress);
+
+    const indicator = document.getElementById(
+      'scrollIndicator'
+    );
+    if(indicator){
+      indicator.style.opacity = 
+        progress > 0.05 ? '0' : '1';
     }
   }
 
-  // Preload first few frames for smooth start
-  for(let i = 1; i <= 5; i++) {
-    const img = new Image();
-    img.src = getFramePath(i);
+  function updateSceneVisibility(progress){
+    const scenes = [
+      { el: document.getElementById('heroScene1'), 
+        start:0.00, end:0.25 },
+      { el: document.getElementById('heroScene2'), 
+        start:0.25, end:0.50 },
+      { el: document.getElementById('heroScene3'), 
+        start:0.50, end:0.75 },
+      { el: document.getElementById('heroScene4'), 
+        start:0.75, end:1.00 }
+    ];
+    scenes.forEach(scene => {
+      if(!scene.el) return;
+      scene.el.classList.toggle('active',
+        progress >= scene.start && 
+        progress <= scene.end
+      );
+    });
   }
 
-  window.addEventListener('scroll', handleScroll, { passive: true });
-
-  // Initial update
+  window.addEventListener('scroll', 
+    handleScroll, { passive:true });
   handleScroll();
 })();
-
-/* ============================================================
-   Reveal-on-scroll (IntersectionObserver)
-   ============================================================ */
-(function reveals(){
-  const els = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold:0.15, rootMargin:'0px 0px -40px 0px' });
-  els.forEach(el => io.observe(el));
-})();
-
-
-
 /* ============================================================
    About — animated stat counters
    ============================================================ */
