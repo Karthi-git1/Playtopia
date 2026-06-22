@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products — Playtopia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="products.css">
+</head>
+<body>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ambient glow blob (color shifts with each item) -->
+  <div class="glow-blob" id="glowBlob"></div>
+
+  <header class="prod-header">
+    <a href="javascript:history.back()" class="back-link">&#8592; Back to Arena</a>
+    <div class="prod-category" id="categoryTitle">Loading...</div>
+  </header>
+
+  <!-- Circular image wheel on the left -->
+  <div class="img-box">
+    <div class="img-list">
+      <div class="img-slider" id="imgSlider"></div>
+    </div>
+  </div>
+
+  <!-- Info panel slides in from the right -->
+  <div class="info-box" id="infoBox"></div>
+
+  <!-- Navigation arrows + counter -->
+  <div class="navigation">
+    <span class="nav-arrow" id="prevBtn">&#8249;</span>
+    <span class="slide-counter" id="slideCounter">1 / 1</span>
+    <span class="nav-arrow" id="nextBtn">&#8250;</span>
+  </div>
+
+  <script src="products.js"></script>
+</body>
+</html>

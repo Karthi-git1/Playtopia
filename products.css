@@ -1,0 +1,322 @@
+/* ============================================================
+   products.css — Playtopia × Reference Wheel Layout
+   Images spin on a circular wheel (pivot: left-center of viewport).
+   Active image floats forward. Info card slides in from right edge.
+   ============================================================ */
+
+:root {
+  --bg:              #1a1b26;
+  --card-bg:         rgba(255,255,255,0.04);
+  --card-border:     rgba(255,255,255,0.08);
+  --text:            #f8f8f2;
+  --text-dim:        #a9b1d6;
+  --accent:          #7aa2f7;
+  --green:           #4ade80;
+  --font-main:       'Inter', sans-serif;
+  --font-head:       'Rajdhani', sans-serif;
+  --trans:           0.9s cubic-bezier(0.25, 1, 0.5, 1);
+  --trans-fast:      0.4s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  overflow: hidden;
+  color: var(--text);
+  font-family: var(--font-main);
+  position: relative;
+}
+
+/* ── Ambient glow blob (positioned like reference ::before) ── */
+.glow-blob {
+  position: absolute;
+  left: 3.5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  filter: blur(180px);
+  pointer-events: none;
+  background: rgba(122, 162, 247, 0.18);
+  transition: background var(--trans);
+  z-index: 0;
+}
+
+/* ── Custom cursor ── */
+body  { cursor: none; }
+a, button, .nav-arrow { cursor: none; }
+.cursor-dot {
+  position: fixed; top: 0; left: 0;
+  width: 8px; height: 8px;
+  background: var(--accent); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 10px var(--accent);
+}
+.cursor-ring {
+  position: fixed; top: 0; left: 0;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(122,162,247,0.4); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width .3s, height .3s, background .3s, border-color .3s;
+}
+
+/* ── Header ── */
+.prod-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 28px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 50;
+}
+.back-link {
+  color: var(--text-dim); text-decoration: none;
+  font-family: var(--font-head); font-size: 15px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em;
+  transition: color .3s;
+}
+.back-link:hover { color: var(--text); }
+.prod-category {
+  font-family: var(--font-head); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .2em;
+  color: var(--accent);
+}
+
+/* ================================================================
+   IMAGE WHEEL
+   Geometry mirrors the reference exactly:
+   · img-box: positioned left: -72%, so the circle centre is ~off-screen-left
+   · img-list: static -120 ° rotation = initial display angle
+   · img-slider: rotates with JS (clockwise for →, CCW for ←)
+   · each img-item: orbits at its own angle (transform-origin: 650px)
+   · each .item: counter-rotates to cancel slider rotation → images stay upright
+   · each img: additional per-item rotation to keep upright at initial angle
+   ================================================================ */
+.img-box {
+  position: absolute;
+  left: -49vw; 
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1300px;
+  height: 1300px;
+  z-index: 1;
+}
+
+.img-list {
+  height: inherit;
+}
+
+.img-slider {
+  height: inherit;
+  transition: transform var(--trans);   /* JS drives the rotation */
+}
+
+/* Each orbital item */
+.img-item {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform-origin: 650px;             /* orbital radius */
+  /* initial transform set by JS; transition handles animation */
+  transition: transform var(--trans);
+  z-index: 0;
+}
+.img-item.active { z-index: 2; }
+
+/* Inner wrapper — counter-rotates to cancel slider rotation */
+.img-item .item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform var(--trans);
+}
+
+/* Product image */
+.img-item .item img {
+  width: 370px;
+  height: 370px;
+  object-fit: contain;
+  
+  /* filter + base rotation set by JS; transition handles it */
+  transition: transform var(--trans), filter var(--trans);
+}
+
+/* ================================================================
+   INFO PANEL
+   Stack of cards at right edge; active one slides in from right
+   ================================================================ */
+.info-box {
+  position: absolute;
+  left:65%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 470px;
+  height: 600px; /* Give it a fixed height so absolute children can center within it */
+  z-index: 10;
+}
+
+.info-item {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  border-radius: 32px;
+  padding: 40px 44px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  /* slide in from right, and offset -50% for vertical center */
+  transform: translate(100%, -50%);
+  opacity: 0;
+  box-shadow: none;
+  transition:
+    transform var(--trans),
+    opacity var(--trans-fast),
+    box-shadow var(--trans);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+.info-item::-webkit-scrollbar { display: none; }
+
+.info-item.active {
+  transform: translate(0, -50%);
+  opacity: 1;
+  box-shadow: -24px 0 70px rgba(0,0,0,0.45);
+}
+
+/* ── Info content ── */
+.info-title {
+  font-family: var(--font-head);
+  font-size: 26px; font-weight: 700; line-height: 1.15;
+  color: var(--text);
+}
+.info-price {
+  font-family: var(--font-head);
+  font-size: 36px; font-weight: 700;
+  color: var(--accent);
+}
+
+/* Colour dots (reference style) */
+.info-colors {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.swatch-label-txt {
+  font-size: 11px; color: var(--text-dim);
+  font-family: var(--font-head); font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; margin-right: 4px;
+}
+.info-swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.info-swatch:hover { transform: scale(1.2); }
+.info-swatch.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(122,162,247,0.45);
+}
+.swatch-name-txt {
+  font-size: 12px; color: var(--text-dim); margin-left: 4px;
+}
+
+/* Feature bullets */
+.info-features {
+  list-style: none; display: flex; flex-direction: column; gap: 8px;
+}
+.info-features li {
+  font-size: 14px; color: var(--text-dim);
+  display: flex; align-items: flex-start; gap: 10px; line-height: 1.45;
+}
+.info-features li::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; min-width: 6px;
+  border-radius: 50%; background: var(--accent); margin-top: 5px;
+}
+
+/* Availability */
+.info-avail {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600;
+  color: var(--green); font-family: var(--font-head); letter-spacing: .05em;
+}
+.avail-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: pulse-green 2s ease-in-out infinite;
+}
+@keyframes pulse-green {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.6; transform:scale(1.5); }
+}
+
+/* CTA button */
+.btn-buy {
+  display: flex; justify-content: center; align-items: center;
+  width: 100%; padding: 15px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  text-transform: uppercase; letter-spacing: .08em;
+  cursor: pointer;
+  transition: background .3s, border-color .3s, transform .2s, box-shadow .3s;
+  backdrop-filter: blur(8px);
+}
+.btn-buy:hover {
+  background: rgba(122,162,247,0.18);
+  border-color: var(--accent);
+  box-shadow: 0 0 22px rgba(122,162,247,0.2);
+  transform: translateY(-2px);
+}
+
+/* ── Navigation (matches reference position) ── */
+.navigation {
+  position: absolute;
+  left: 23%;
+  bottom: 7%;
+  display: flex; align-items: center; gap: 16px;
+  z-index: 100;
+}
+.nav-arrow {
+  display: inline-flex; justify-content: center; align-items: center;
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  font-size: 28px; color: #fff;
+  backdrop-filter: blur(10px);
+  user-select: none;
+  transition: all .3s ease;
+}
+.nav-arrow:hover {
+  background: rgba(122,162,247,0.2);
+  border-color: var(--accent);
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(122,162,247,0.3);
+}
+.slide-counter {
+  font-family: var(--font-head);
+  font-size: 14px; font-weight: 600;
+  color: var(--text-dim); letter-spacing: .1em;
+  min-width: 48px; text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .img-box { left: -45vw; width: 1100px; height: 1100px; }
+  .img-item .item img { width: 210px; height: 210px; }
+  .info-box { width: 340px; }
+  .info-item { padding: 30px 24px; gap: 14px; }
+  .info-title { font-size: 22px; }
+  .info-price { font-size: 28px; }
+  .navigation { left: 16%; }
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404: Level Not Found | Playtopia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .error-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15) 0%, transparent 60%);
+    z-index: -1;
+  }
+  .error-glitch {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 140px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 40px rgba(239,68,68,0.4));
+    animation: pulseRed 3s infinite alternate;
+  }
+  @keyframes pulseRed {
+    0% { filter: drop-shadow(0 0 20px rgba(239,68,68,0.2)); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 60px rgba(239,68,68,0.6)); transform: scale(1.05); }
+  }
+  .error-title {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+  .error-desc {
+    color: var(--text-dim);
+    font-size: 16px;
+    max-width: 400px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="error-bg"></div>
+
+<div class="container">
+  <div class="error-glitch">404</div>
+  <h1 class="error-title">Level Not Found.</h1>
+  <p class="error-desc">Looks like you've wandered out of bounds. The page you're looking for has been disconnected from the server.</p>
+  
+  <a href="index.html" class="btn btn-primary">Respawn at Home Base</a>
+</div>
+
+</body>
+</html>
