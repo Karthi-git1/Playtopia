@@ -143,6 +143,24 @@ navLinks.querySelectorAll('a').forEach(a => {
   handleScroll();
 })();
 /* ============================================================
+   Reveal-on-scroll (IntersectionObserver)
+   ============================================================ */
+(function reveals(){
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.15, rootMargin:'0px 0px -40px 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+
+
+/* ============================================================
    About — animated stat counters
    ============================================================ */
 (function counters(){

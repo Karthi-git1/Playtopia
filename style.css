@@ -2212,13 +2212,16 @@ label {
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 240px;
   gap: 36px;
-  animation: trackEntrance 0.8s var(--ease) forwards;
   opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
   margin-top: 30px;
 }
 
 .gallery-collage.animated {
   opacity: 1;
+  transform: translateY(0);
+  animation: none;
 }
 
 .gallery-collage img {
