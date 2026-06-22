@@ -54,7 +54,7 @@ navLinks.querySelectorAll('a').forEach(a => {
 
   function getFramePath(frameNum) {
     const padded = String(frameNum).padStart(framePadding, '0');
-    return `${frameDir}ezgif-frame-${padded}.png`;
+    return `${frameDir}ezgif-frame-${padded}.webp`;
   }
 
   function updateFrame(frameNum) {
